@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plato — Apology of Socrates (Oxford-Style Presentation)</title>
+
+  <style>
+    :root{
+      --paper:#f6f0e3;
+      --paper2:#efe6d3;
+      --ink:#1e2430;
+      --ink2:#3a4357;
+      --gold:#b08a2e;
+      --wine:#6d1f2a;
+      --teal:#1a5c5a;
+      --line: rgba(30,36,48,.16);
+
+      --radius: 22px;
+      --shadow: 0 20px 55px rgba(20,16,10,.22);
+      --shadow2: 0 12px 30px rgba(20,16,10,.16);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      overflow:hidden;
+      background:
+        radial-gradient(1100px 700px at 12% 12%, rgba(176,138,46,.17), transparent 60%),
+        radial-gradient(900px 650px at 90% 20%, rgba(26,92,90,.12), transparent 60%),
+        radial-gradient(900px 650px at 55% 105%, rgba(109,31,42,.12), transparent 60%),
+        linear-gradient(180deg, #ede3cf 0%, #f6f0e3 40%, #efe6d3 100%);
+      font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+      letter-spacing: .2px;
+    }
+
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        linear-gradient(90deg, rgba(30,36,48,.045) 1px, transparent 1px) 0 0 / 42px 42px,
+        linear-gradient(0deg, rgba(30,36,48,.04) 1px, transparent 1px) 0 0 / 42px 42px;
+      opacity:.45;
+      pointer-events:none;
+      mix-blend-mode:multiply;
+    }
+
+    .topbar{
+      position:fixed; inset: 16px 16px auto 16px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      z-index:50;
+    }
+    .brand{
+      display:flex; flex-direction:column; gap:4px;
+      padding:12px 16px;
+      border-radius:999px;
+      background: rgba(246,240,227,.78);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(8px);
+      max-width: 68vw;
+    }
+    .brand .t{
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .brand .s{
+      font-size: 12px;
+      color: rgba(30,36,48,.72);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing: .15px;
+    }
+
+    .controls{
+      display:flex; gap:10px; align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(246,240,227,.78);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(8px);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .btn{
+      border:1px solid rgba(30,36,48,.18);
+      background: rgba(255,255,255,.6);
+      color: var(--ink);
+      cursor:pointer;
+      padding:9px 12px;
+      border-radius:999px;
+      font-weight:700;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.82)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: rgba(30,36,48,.72);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(30,36,48,.18);
+      background: rgba(255,255,255,.55);
+    }
+
+    .stage{
+      position:fixed; inset:0;
+      display:grid;
+      place-items:center;
+      padding: 92px 18px 88px;
+    }
+    .deck{
+      width:min(1160px, 96vw);
+      height:min(650px, 54vw);
+      max-height: 74vh;
+      position:relative;
+    }
+
+    .slide{
+      position:absolute; inset:0;
+      padding: 44px 54px;
+      border-radius: var(--radius);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(176,138,46,.09), transparent 60%),
+        radial-gradient(900px 700px at 85% 20%, rgba(26,92,90,.08), transparent 60%),
+        linear-gradient(180deg, rgba(246,240,227,.95) 0%, rgba(239,230,211,.95) 100%);
+      border: 1px solid rgba(30,36,48,.14);
+      box-shadow: var(--shadow);
+      opacity:0;
+      transform: translateY(14px) scale(.986);
+      transition: opacity .24s ease, transform .24s ease;
+      overflow:hidden;
+    }
+    .slide.active{
+      opacity:1;
+      transform: translateY(0) scale(1);
+      pointer-events:auto;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 24px;
+      height:100%;
+    }
+    .title{
+      margin:0 0 10px;
+      font-size: 46px;
+      line-height: 1.05;
+      color: var(--ink);
+      letter-spacing: .3px;
+    }
+    .subtitle{
+      margin:0 0 18px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: rgba(30,36,48,.78);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      max-width: 76ch;
+    }
+
+    .chips{display:flex; flex-wrap:wrap; gap:10px; margin: 6px 0 18px}
+    .chip{
+      padding:8px 12px;
+      border-radius:999px;
+      border: 1px solid rgba(30,36,48,.16);
+      background: rgba(255,255,255,.58);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(30,36,48,.78);
+    }
+    .chip.gold{border-color: rgba(176,138,46,.35)}
+    .chip.teal{border-color: rgba(26,92,90,.32)}
+    .chip.wine{border-color: rgba(109,31,42,.30)}
+
+    ul{
+      margin: 8px 0 0 18px;
+      padding:0;
+      font-size: 19px;
+      line-height: 1.55;
+      color: rgba(30,36,48,.92);
+    }
+    li{margin: 10px 0}
+    .note{
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(30,36,48,.14);
+      color: rgba(30,36,48,.78);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    blockquote{
+      margin:0;
+      padding: 18px 18px;
+      border-radius: 18px;
+      background:
+        radial-gradient(800px 450px at 18% 10%, rgba(176,138,46,.14), transparent 65%),
+        rgba(255,255,255,.52);
+      border: 1px solid rgba(176,138,46,.34);
+      box-shadow: 0 12px 34px rgba(20,16,10,.16);
+    }
+    blockquote p{
+      margin:0;
+      font-size: 20px;
+      line-height: 1.55;
+      color: rgba(30,36,48,.92);
+    }
+    blockquote footer{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(30,36,48,.66);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .side{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:14px;
+      height:100%;
+    }
+    .card{
+      padding: 16px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(30,36,48,.14);
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size: 12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color: rgba(30,36,48,.62);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .card .big{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.48;
+      color: rgba(30,36,48,.90);
+      font-weight: 700;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 10px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(30,36,48,.14);
+      font-size: 13px;
+      color: rgba(30,36,48,.72);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight:700;
+    }
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.gold{background: var(--gold)}
+    .dot.teal{background: var(--teal)}
+    .dot.wine{background: var(--wine)}
+
+    .footer{
+      position:fixed; inset:auto 16px 16px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      z-index:50;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .progress{
+      flex:1;
+      height: 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(30,36,48,.14);
+      overflow:hidden;
+      box-shadow: var(--shadow2);
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(26,92,90,.85), rgba(176,138,46,.92), rgba(109,31,42,.82));
+      border-radius:999px;
+      transition: width .22s ease;
+    }
+    .counter{
+      padding: 10px 12px;
+      border-radius:999px;
+      background: rgba(246,240,227,.78);
+      border: 1px solid rgba(30,36,48,.14);
+      box-shadow: var(--shadow2);
+      color: rgba(30,36,48,.78);
+      font-weight: 800;
+      min-width: 144px;
+      text-align:center;
+    }
+
+    .notes{
+      display:none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px dashed rgba(30,36,48,.22);
+      background: rgba(255,255,255,.45);
+      color: rgba(30,36,48,.78);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .notes.show{display:block}
+
+    @media (max-width: 900px){
+      .deck{height:min(690px, 78vh)}
+      .grid{grid-template-columns: 1fr}
+      .title{font-size: 40px}
+      ul{font-size:18px}
+    }
+
+    @media print{
+      body{overflow:visible; background:#fff}
+      body::before{display:none}
+      .topbar,.footer{display:none !important}
+      .stage{position:static; padding:0}
+      .deck{width:100%; height:auto; max-height:none}
+      .slide{
+        position:static;
+        page-break-after: always;
+        opacity:1 !important;
+        transform:none !important;
+        box-shadow:none !important;
+        border: 1px solid #ccc;
+        background:#fff;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="t">Plato — <em>Apology of Socrates</em></div>
+      <div class="s">Oxford-style structure • 7–7–7 slides • ← → navigate • <span class="kbd">N</span> notes • <span class="kbd">F</span> fullscreen</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prevBtn">← Prev</button>
+      <button class="btn" id="nextBtn">Next →</button>
+      <span class="kbd">← →</span>
+      <span class="kbd">N</span>
+      <span class="kbd">F</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="deck" id="deck">
+
+      <!-- SLIDE 1: Introduction -->
+      <section class="slide active" data-title="Introduction">
+        <div class="grid">
+          <div>
+            <h1 class="title">Introduction</h1>
+            <p class="subtitle">
+              <em>Apology</em> presents a philosophical problem: can a community that rules by majority tolerate
+              a citizen who insists on questioning its deepest beliefs?
+            </p>
+
+            <div class="chips">
+              <span class="chip gold">Problem</span>
+              <span class="chip teal">Importance</span>
+              <span class="chip wine">Thesis</span>
+            </div>
+
+            <ul>
+              <li><b>Problem:</b> truth vs majority judgment</li>
+              <li><b>Why it matters:</b> democracy can become “rule by opinion”</li>
+              <li><b>Thesis:</b> philosophy is a moral duty, not a choice</li>
+              <li><b>Focus:</b> Socrates’ argument for integrity over safety</li>
+            </ul>
+
+            <div class="notes">
+              <b>Speaker 1 (≈1:00):</b> Name the problem and thesis clearly. One sentence each.
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="card">
+              <h3>Structure</h3>
+              <p class="big">Introduction → Context → Argument → Objections → Conclusion</p>
+              <div class="badge"><span class="dot teal"></span>Oxford format</div>
+            </div>
+
+            <blockquote>
+              <p>“The unexamined life is not worth living.”</p>
+              <footer>Plato, <em>Apology</em> (translation varies)</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: Context -->
+      <section class="slide" data-title="Context">
+        <div class="grid">
+          <div>
+            <h1 class="title">Context / Background</h1>
+            <p class="subtitle">
+              The trial takes place in Athens (399 BCE), in a tense atmosphere after war and political instability.
+              Socrates is viewed as dangerous not because he leads a faction, but because he examines certainties.
+            </p>
+
+            <ul>
+              <li>Athenian court: public accusation and vote</li>
+              <li>Formal charges: impiety, corrupting youth</li>
+              <li>Unstated fear: criticism threatens authority</li>
+              <li>Socratic practice: questioning, not preaching</li>
+            </ul>
+
+            <div class="note">
+              Context claim: the trial is a conflict between civic stability and intellectual freedom.
+            </div>
+
+            <div class="notes">
+              <b>Speaker 1 (≈1:00):</b> Keep it short. One minute. Move to the argument.
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="card">
+              <h3>Key terms</h3>
+              <p class="big"><b>Apologia</b> = reasoned defense • <b>Elenchus</b> = testing by questions</p>
+              <div class="badge"><span class="dot gold"></span>Concept toolkit</div>
+            </div>
+
+            <div class="card">
+              <h3>Why hostility?</h3>
+              <p class="big">Questioning can sound like disrespect, even when it aims at truth.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: Argument I -->
+      <section class="slide" data-title="Argument I">
+        <div class="grid">
+          <div>
+            <h1 class="title">The Argument</h1>
+            <p class="subtitle">
+              Socrates’ defense contains a reconstructed argument: if false confidence is common, then examination is necessary,
+              and if examination is necessary, philosophy becomes a civic duty.
+            </p>
+
+            <ul>
+              <li><b>P1:</b> Many claim knowledge without reasons</li>
+              <li><b>P2:</b> Unchecked “knowledge” misleads the city</li>
+              <li><b>P3:</b> Examination exposes contradictions</li>
+              <li><b>C1:</b> Therefore examination is socially valuable</li>
+              <li><b>C2:</b> Therefore philosophy is a public service</li>
+            </ul>
+
+            <div class="notes">
+              <b>Speaker 2 (≈1:10):</b> Read premises clearly. Explain each in one line.
+            </div>
+          </div>
+
+          <div class="side">
+            <blockquote>
+              <p>“I know that I do not know.”</p>
+              <footer>Standard Socratic idea (often paraphrased)</footer>
+            </blockquote>
+
+            <div class="card">
+              <h3>Interpretation</h3>
+              <p class="big">Humility is not ignorance — it is refusal to pretend.</p>
+              <div class="badge"><span class="dot teal"></span>Epistemic virtue</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: Argument II -->
+      <section class="slide" data-title="Argument II">
+        <div class="grid">
+          <div>
+            <h1 class="title">The Argument</h1>
+            <p class="subtitle">
+              Socrates’ strongest ethical claim: the worst harm is moral corruption. If injustice damages the soul,
+              then avoiding injustice is more important than avoiding death.
+            </p>
+
+            <ul>
+              <li><b>P1:</b> The soul matters more than reputation</li>
+              <li><b>P2:</b> Injustice corrupts the soul</li>
+              <li><b>P3:</b> Death is uncertain; injustice is certain harm</li>
+              <li><b>C:</b> Therefore integrity &gt; survival</li>
+            </ul>
+
+            <div class="note">
+              Key move: Socrates shifts the “risk” from the body to the soul.
+            </div>
+
+            <div class="notes">
+              <b>Speaker 3 (≈1:10):</b> Explain “soul” as moral character (not religious preaching).
+            </div>
+          </div>
+
+          <div class="side">
+            <blockquote>
+              <p>“…it is much more difficult to escape wrongdoing.”</p>
+              <footer>Plato, <em>Apology</em> (translation varies)</footer>
+            </blockquote>
+
+            <div class="card">
+              <h3>Result</h3>
+              <p class="big">If this is true, Socrates cannot “save himself” by lying.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: Objection 1 -->
+      <section class="slide" data-title="Objection 1">
+        <div class="grid">
+          <div>
+            <h1 class="title">Objection & Reply</h1>
+            <p class="subtitle">
+              A philosophical defense anticipates criticism. First objection:
+              Socrates is politically reckless — he could protect philosophy by being tactful.
+            </p>
+
+            <ul>
+              <li><b>Objection:</b> No compromise = needless death</li>
+              <li>He provokes hostility publicly</li>
+              <li>Martyrdom ends dialogue</li>
+              <li><b>Reply:</b> compromise destroys the point</li>
+              <li>“Living well” requires honesty</li>
+            </ul>
+
+            <div class="note">
+              Reply principle: survival is not the highest value if it requires self-betrayal.
+            </div>
+
+            <div class="notes">
+              <b>Speaker 4 (≈1:00):</b> Present objection fairly, then answer without attacking the objector.
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="card">
+              <h3>Good line for Q&A</h3>
+              <p class="big">“The issue is not whether compromise works, but what it costs.”</p>
+              <div class="badge"><span class="dot gold"></span>Clear reply</div>
+            </div>
+
+            <blockquote>
+              <p>“I would rather die… than live by speaking in yours.”</p>
+              <footer>Idea of the dialogue (translation varies)</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: Objection 2 -->
+      <section class="slide" data-title="Objection 2">
+        <div class="grid">
+          <div>
+            <h1 class="title">Objection & Reply</h1>
+            <p class="subtitle">
+              Second objection: democratic order needs shared norms. Persistent questioning weakens cohesion,
+              encourages disrespect, and risks instability.
+            </p>
+
+            <ul>
+              <li><b>Objection:</b> criticism destabilizes the polis</li>
+              <li>Tradition sustains civic unity</li>
+              <li>Young people imitate disruption</li>
+              <li><b>Reply:</b> unexamined norms become tyranny</li>
+              <li>Democracy needs reasons, not only votes</li>
+            </ul>
+
+            <div class="note">
+              Reply claim: philosophy strengthens a city by demanding justification, not obedience.
+            </div>
+
+            <div class="notes">
+              <b>Speaker 5 (≈1:00):</b> Emphasize: Socrates targets arrogance, not the city.
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="card">
+              <h3>Bridge to today</h3>
+              <p class="big">Public criticism still looks like “danger” to institutions.</p>
+              <div class="badge"><span class="dot teal"></span>Contemporary link</div>
+            </div>
+
+            <blockquote>
+              <p>“Nothing bad can happen to a good person…”</p>
+              <footer>Plato, <em>Apology</em> (translation varies)</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: Conclusion -->
+      <section class="slide" data-title="Conclusion">
+        <div class="grid">
+          <div>
+            <h1 class="title">Conclusion</h1>
+            <p class="subtitle">
+              Plato’s <em>Apology</em> ends without reconciliation. Its force lies in a demand:
+              do not trade integrity for comfort, and do not confuse opinion with truth.
+            </p>
+
+            <ul>
+              <li><b>Summary:</b> context → argument → objections</li>
+              <li><b>Reaffirm thesis:</b> philosophy is moral duty</li>
+              <li>Integrity is higher than safety</li>
+              <li>Examination is a condition of freedom</li>
+            </ul>
+
+            <div class="note">
+              Closing line: the examined life is not easy — but it is the only life Socrates considers fully human.
+            </div>
+
+            <div class="notes">
+              <b>All speakers (≈1:30):</b> each says one “What I learned” sentence.
+            </div>
+          </div>
+
+          <div class="side">
+            <div class="card">
+              <h3>Sources</h3>
+              <p class="big" style="font-size:14px; line-height:1.55; font-weight:700; color: rgba(30,36,48,.82);">
+                • Plato.today PDF (text/translation)<br/>
+                • CHS (Harvard) background on trial procedure
+              </p>
+              <div class="badge"><span class="dot wine"></span>Short citations</div>
+            </div>
+
+            <blockquote>
+              <p>“The unexamined life is not worth living.”</p>
+              <footer>Plato, <em>Apology</em> (translation varies)</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="counter" id="counter">Slide 1 / 7</div>
+  </div>
+
+  <script>
+    (function(){
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const bar = document.getElementById('bar');
+      const counter = document.getElementById('counter');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      let i = 0;
+      let showNotes = false;
+
+      function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+
+      function setActive(idx){
+        i = clamp(idx, 0, slides.length-1);
+        slides.forEach((s, k) => {
+          s.classList.toggle('active', k===i);
+          const notes = s.querySelector('.notes');
+          if(notes) notes.classList.toggle('show', showNotes);
+        });
+        const pct = ((i+1)/slides.length)*100;
+        bar.style.width = pct + '%';
+        counter.textContent = `Slide ${i+1} / ${slides.length}`;
+        document.title = `(${i+1}/${slides.length}) Plato — Apology`;
+      }
+
+      function next(){ setActive(i+1); }
+      function prev(){ setActive(i-1); }
+
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+
+      document.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); next(); }
+        if(e.key === 'ArrowLeft'  || e.key === 'PageUp'){ e.preventDefault(); prev(); }
+        if(k === 'n'){ showNotes = !showNotes; setActive(i); }
+        if(k === 'f'){
+          if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+          else document.exitFullscreen?.();
+        }
+        if(e.key === 'Home'){ setActive(0); }
+        if(e.key === 'End'){ setActive(slides.length-1); }
+      });
+
+      let x0 = null;
+      document.addEventListener('touchstart', (e)=>{ x0 = e.touches[0].clientX; }, {passive:true});
+      document.addEventListener('touchend', (e)=>{
+        if(x0 === null) return;
+        const x1 = e.changedTouches[0].clientX;
+        const dx = x1 - x0;
+        if(Math.abs(dx) > 50){ (dx < 0) ? next() : prev(); }
+        x0 = null;
+      }, {passive:true});
+
+      setActive(0);
+    })();
+  </script>
+</body>
+</html>
